@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>拾页 · 你的想法，慢慢生长</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="icons.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="titlebar">
+      <div class="brand"><span class="brand-mark" data-icon="leaf"></span><strong>拾页</strong><span class="brand-divider"></span><span class="brand-subtitle">给想法一个家</span></div>
+      <span class="titlebar-caption">我的个人空间</span>
+      <div class="titlebar-right"><span class="local-indicator"></span><span>本地资料库</span><span class="profile-avatar">W</span></div>
+    </header>
+
+    <div class="workspace">
+      <aside class="sidebar" aria-label="主导航">
+        <div class="space-heading"><div class="space-avatar">W<span></span></div><div><strong>我的空间</strong><span>留住每一个好想法</span></div></div>
+        <button class="primary-button quick-button" id="quick-note"><span data-icon="plus"></span>随手记一笔<kbd>Ctrl N</kbd></button>
+        <nav class="main-nav">
+          <button class="nav-item" data-view="today"><span data-icon="sun"></span><span>今天</span><span class="nav-hint">10.21</span></button>
+          <button class="nav-item" data-view="inbox"><span data-icon="inbox"></span><span>收集箱</span><span class="nav-count" data-count="inbox"></span></button>
+          <button class="nav-item" data-view="all"><span data-icon="layers"></span><span>全部笔记</span><span class="nav-count" data-count="all"></span></button>
+          <button class="nav-item" data-view="favorites"><span data-icon="star"></span><span>我的收藏</span></button>
+        </nav>
+        <div class="nav-section-title">笔记本<span data-icon="book-open"></span></div>
+        <nav class="notebook-nav">
+          <button class="nav-item" data-view="work"><span class="notebook-dot dot-blue"></span><span>工作与项目</span><span class="nav-count" data-count="work"></span></button>
+          <button class="nav-item is-active" data-view="study"><span class="notebook-dot dot-purple"></span><span>学习与成长</span><span class="nav-count" data-count="study"></span></button>
+          <button class="nav-item" data-view="life"><span class="notebook-dot dot-orange"></span><span>生活与灵感</span><span class="nav-count" data-count="life"></span></button>
+        </nav>
+        <div class="nav-section-title tags-heading">常用标签</div>
+        <div class="sidebar-tags"><button data-search-tag="知识管理"># 知识管理</button><button data-search-tag="灵感"># 灵感</button><button data-search-tag="阅读"># 阅读</button></div>
+        <div class="sidebar-spacer"></div>
+        <div class="daily-card"><span class="daily-card-icon" data-icon="sprout"></span><strong>今天，也值得记录</strong><p>给自己留下一点生活的痕迹。</p><button id="daily-note">写一篇今日日记<span data-icon="arrow-right"></span></button></div>
+        <div class="sidebar-bottom"><button class="nav-item" data-view="trash"><span data-icon="trash"></span><span>回收站</span></button><button class="nav-item" id="settings-toggle"><span data-icon="settings"></span><span>偏好设置</span></button></div>
+        <div class="sidebar-footnote"><span class="status-dot"></span>离线也能安心记录</div>
+      </aside>
+
+      <section class="notes-panel" aria-label="笔记列表">
+        <div class="notes-heading"><div><span class="eyebrow">YOUR COLLECTION</span><h1 id="list-title">学习与成长</h1></div><button class="icon-button new-note-button" id="new-note" title="新建笔记" aria-label="新建笔记"><span data-icon="square-pen"></span></button></div>
+        <div class="search-box"><span data-icon="search"></span><input id="search-input" type="search" placeholder="搜索你的笔记…" aria-label="搜索笔记"><kbd>⌕</kbd></div>
+        <div class="list-toolbar"><span><b id="list-count">3</b> 篇笔记</span><button id="sort-toggle" title="切换笔记排序">最近编辑<span data-icon="arrow-down-wide"></span></button></div>
+        <div id="note-list" class="note-list"></div>
+        <div id="empty-state" class="empty-state" hidden><span data-icon="search"></span><strong>这里还没有笔记</strong><p>试试其他关键词，或记录一个新想法。</p></div>
+        <div class="notes-bottom"><span data-icon="lock"></span>记录属于你，灵感也属于你。</div>
+      </section>
+
+      <main class="editor-pane" id="editor-pane">
+        <header class="editor-toolbar"><div class="breadcrumb"><span data-icon="book-open"></span><span id="breadcrumb-notebook">学习与成长</span><span class="breadcrumb-slash">/</span><span id="breadcrumb-current">建立自己的知识花园</span></div><div class="editor-actions"><span id="save-state" class="save-state">已保存</span><span class="toolbar-separator"></span><button id="favorite-toggle" class="icon-button" aria-label="收藏笔记" title="收藏笔记" aria-pressed="false"><span data-icon="star"></span></button><button id="outline-toggle" class="icon-button" aria-label="文章大纲" title="文章大纲" aria-pressed="false"><span data-icon="list-tree"></span></button><button id="focus-toggle" class="icon-button" aria-label="专注模式" title="专注模式" aria-pressed="false"><span data-icon="expand"></span></button><button id="export-note" class="icon-button" aria-label="导出 Markdown" title="导出 Markdown"><span data-icon="download"></span></button><button id="delete-note" class="icon-button delete-button" title="移入回收站" aria-label="移入回收站"><span data-icon="trash"></span></button></div></header>
+        <div class="editor-scroll">
+          <div class="note-cover" aria-hidden="true"><div class="cover-copy"><span class="cover-line"></span>让每一个想法，慢慢生长。</div><svg class="cover-art" viewBox="0 0 620 160" fill="none"><circle cx="418" cy="75" r="70" fill="#DFE5DB"/><circle cx="515" cy="148" r="88" fill="#E8E7DC"/><path d="M255 161C294 129 300 52 346 26M296 111C263 107 244 83 248 65C274 64 297 86 296 111ZM315 74C317 46 338 36 355 41C351 63 337 75 315 74ZM312 92C337 88 357 94 366 111C345 124 324 110 312 92ZM460 158C442 117 458 70 488 36M455 114C433 115 417 97 418 80C442 77 459 93 455 114ZM472 69C471 43 490 23 508 24C512 46 495 65 472 69Z" stroke="#91A78B" stroke-width="1.4"/><path d="M340 160C360 128 382 119 405 117M373 133C369 114 377 104 390 101C398 114 390 128 373 133Z" stroke="#A6B29D" stroke-width="1.4"/><path d="M520 70H556M538 52V88" stroke="#C6CBBE"/><circle cx="224" cy="44" r="3" fill="#B5BEB0"/><circle cx="572" cy="119" r="2" fill="#B5BEB0"/></svg></div>
+          <article class="document">
+            <div class="document-topline"><div class="page-symbol"><span data-icon="sprout"></span></div><button id="template-toggle" class="text-button"><span data-icon="layout"></span>使用模板</button></div>
+            <input id="editor-title" class="editor-title" aria-label="笔记标题" placeholder="无标题笔记" autocomplete="off">
+            <div class="document-properties"><div id="editor-tags" class="editor-tags"></div><span class="property-divider"></span><span id="editor-meta" class="editor-meta">今天 10:42 编辑</span></div>
+            <div class="document-rule"></div>
+            <div id="editor-body" class="editor-body" contenteditable="true" role="textbox" aria-label="笔记正文" aria-multiline="true" spellcheck="false" data-placeholder="写下你的第一个想法，或输入 / 插入内容块…"></div>
+            <button id="add-block" class="add-block-button"><span data-icon="plus"></span>添加内容块<span class="block-shortcut">或输入 /</span></button>
+            <footer class="document-footer"><span data-icon="feather"></span><span>不必完整，先写下来。</span></footer>
+          </article>
+        </div>
+        <aside class="outline-panel"><div class="outline-heading">文章大纲</div><nav id="outline-list"></nav><p>让思路，有迹可循。</p></aside>
+      </main>
+      <section id="welcome-pane" class="welcome-pane" hidden><span data-icon="feather"></span><h2>给新想法留一点空间</h2><p>选择一篇笔记，或开始记录。</p></section>
+    </div>
+    <footer class="app-statusbar"><span><span class="status-dot"></span>所有内容保存在这台设备</span><span>拾页 · 把日子写成自己的样子<span class="statusbar-shortcut">Ctrl + Shift + F 搜索</span></span></footer>
+  </div>
+
+  <div id="slash-menu" class="slash-menu" hidden><div class="menu-eyebrow">插入内容块</div><button data-block="paragraph"><span class="block-option-icon" data-icon="text"></span><span><strong>正文</strong><small>让想法从一行文字开始</small></span><kbd>文本</kbd></button><button data-block="heading"><span class="block-option-icon">H₂</span><span><strong>标题</strong><small>为内容建立清晰的层次</small></span></button><button data-block="todo"><span class="block-option-icon" data-icon="check-square"></span><span><strong>待办事项</strong><small>把一个想法变成一个行动</small></span></button><button data-block="quote"><span class="block-option-icon" data-icon="quote"></span><span><strong>引用</strong><small>留住一句值得回味的话</small></span></button><button data-block="code"><span class="block-option-icon" data-icon="code"></span><span><strong>代码块</strong><small>保存一段灵感与解法</small></span></button><button data-block="divider"><span class="block-option-icon" data-icon="minus"></span><span><strong>分割线</strong><small>给内容一点呼吸的空间</small></span></button></div>
+
+  <dialog id="template-dialog" class="modal"><form method="dialog"><button class="modal-close icon-button" aria-label="关闭"><span data-icon="x"></span></button></form><span class="modal-kicker">A FRESH START</span><h2>从一个好模板开始</h2><p class="modal-description">留一点结构，给更多灵感。</p><div class="template-grid"><button data-template="daily"><span class="template-emoji">☀️</span><strong>日常手记</strong><small>记录今天的心情与小事</small></button><button data-template="reading"><span class="template-emoji">📖</span><strong>阅读笔记</strong><small>收藏文字，也留下思考</small></button><button data-template="meeting"><span class="template-emoji">💬</span><strong>会议记录</strong><small>结论、讨论与下一步行动</small></button><button data-template="project"><span class="template-emoji">🧭</span><strong>项目计划</strong><small>从目标出发，一步步完成</small></button></div><div class="modal-footnote">选择模板会创建一篇新笔记。</div></dialog>
+
+  <dialog id="settings-dialog" class="modal settings-modal"><form method="dialog"><button class="modal-close icon-button" aria-label="关闭"><span data-icon="x"></span></button></form><span class="modal-kicker">MAKE IT YOURS</span><h2>让拾页，更像你</h2><p class="modal-description">找到最舒服的记录方式。</p><div class="setting-row"><div><strong>外观模式</strong><small>在明亮与安静之间切换</small></div><button id="theme-toggle" class="theme-button"><span data-icon="moon"></span>切换深浅主题</button></div><label class="setting-row"><span><strong>正文字号</strong><small>适合自己的阅读大小</small></span><input id="font-size" type="range" min="14" max="22" value="16" aria-label="正文字号"></label><label class="setting-row"><span><strong>正文宽度</strong><small>为长文留出呼吸感</small></span><input id="line-width" type="range" min="560" max="960" value="760" step="20" aria-label="正文宽度"></label><label class="setting-row"><span><strong>喜欢的强调色</strong><small>一点属于你的色彩</small></span><input id="accent-color" type="color" value="#7771b5" aria-label="强调色"></label><div class="modal-footnote">偏好会自动保存在当前浏览器。</div></dialog>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
