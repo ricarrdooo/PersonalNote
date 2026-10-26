@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
     QApplication::setApplicationName(QStringLiteral("Shiye"));
     QApplication::setApplicationDisplayName(QStringLiteral("拾页"));
     QApplication::setOrganizationName(QStringLiteral("Shiye"));
-    QApplication::setApplicationVersion(QStringLiteral("0.4.0"));
+    QApplication::setApplicationVersion(QStringLiteral("0.4.1"));
     QApplication::setFont(QFont(QStringLiteral("Microsoft YaHei UI"), 10));
 
     QCommandLineParser parser;

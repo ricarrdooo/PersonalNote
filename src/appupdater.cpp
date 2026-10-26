@@ -89,14 +89,17 @@ Response fetch(QUrl url, qint64 limit, const Cancel &cancel, const QString &file
         wchar_t contentLength[64]; length = sizeof(contentLength); qint64 total = 0;
         if (WinHttpQueryHeaders(request.value, WINHTTP_QUERY_CONTENT_LENGTH, WINHTTP_HEADER_NAME_BY_INDEX, contentLength, &length, WINHTTP_NO_HEADER_INDEX)) total = QString::fromWCharArray(contentLength).toLongLong();
         if (total > limit) { response.error = QStringLiteral("更新文件超过允许大小，已停止下载。"); return response; }
-        QSaveFile output(filePath);
-        if (!filePath.isEmpty() && !output.open(QIODevice::WriteOnly)) { response.error = QStringLiteral("无法写入更新下载目录。"); return response; }
+        QFile output(filePath);
+        if (!filePath.isEmpty() && !output.open(QIODevice::WriteOnly | QIODevice::NewOnly)) { response.error = QStringLiteral("无法写入更新下载目录：") + output.errorString(); return response; }
         qint64 received = 0; char buffer[65536]; DWORD read = 0;
         while (!cancel->load()) {
             if (!WinHttpReadData(request.value, buffer, sizeof(buffer), &read)) { response.error = QStringLiteral("下载连接中断，请重试。"); return response; }
             if (!read) {
                 if (total && total != received) { response.error = QStringLiteral("更新文件下载不完整，请重试。"); return response; }
-                if (!filePath.isEmpty() && !output.commit()) { response.error = QStringLiteral("更新文件保存失败，请检查磁盘空间。"); return response; }
+                if (!filePath.isEmpty()) {
+                    if (!output.flush()) { response.error = QStringLiteral("更新文件保存失败：") + output.errorString(); return response; }
+                    output.close();
+                }
                 return response;
             }
             received += read;
@@ -144,6 +147,18 @@ bool UpdateProtocol::allowedPath(const QString &path) {
             QRegularExpression(QStringLiteral("^(con|prn|aux|nul|com[1-9]|lpt[1-9])($|\\.)")).match(lower).hasMatch()) return false;
     }
     return true;
+}
+bool UpdateProtocol::writeCacheFile(const QString &path, const QByteArray &bytes, QString *error) {
+    // Cache entries are fresh, exclusive files. They are never installed until all
+    // hashes pass, so they do not need QSaveFile's rename (which fails on some
+    // redirected/encrypted Windows profile directories).
+    QFile file(path);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::NewOnly)) { if (error) *error = file.errorString(); return false; }
+    if (file.write(bytes) != bytes.size() || !file.flush()) {
+        if (error) *error = file.errorString();
+        file.close(); QFile::remove(path); return false;
+    }
+    file.close(); return true;
 }
 bool UpdateProtocol::parseRelease(const QByteArray &json, const QString &repo, UpdateRelease *release, QString *error) {
     const auto object = QJsonDocument::fromJson(json).object(); const QString tag = object.value(QStringLiteral("tag_name")).toString();
@@ -219,8 +234,8 @@ void AppUpdater::download() {
         if (error.isEmpty()) UpdateProtocol::validateManifest(manifest, release.version, &error);
         if (error.isEmpty() && !QDir().mkpath(directory)) error = QStringLiteral("无法创建更新缓存目录。");
         if (error.isEmpty()) {
-            QSaveFile file(QDir(directory).filePath(manifestName));
-            if (!file.open(QIODevice::WriteOnly) || file.write(response.bytes) != response.bytes.size() || !file.commit()) error = QStringLiteral("无法保存更新校验清单。");
+            QString reason;
+            if (!UpdateProtocol::writeCacheFile(QDir(directory).filePath(manifestName), response.bytes, &reason)) error = QStringLiteral("无法保存更新校验清单：") + reason;
         }
         const QString archive = QDir(directory).filePath(archiveName);
         if (error.isEmpty()) {

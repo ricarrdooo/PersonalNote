@@ -1227,8 +1227,9 @@ void MainWindow::installUpdate()
     if (!saved) { setEnabled(true); showError(QStringLiteral("更新前备份失败，已停止安装：") + error); return; }
     const QString plan = QDir(m_updateDirectory).filePath(QStringLiteral("plan.json"));
     const QJsonObject object{{QStringLiteral("schema"), 1}, {QStringLiteral("version"), m_updateVersion}, {QStringLiteral("currentVersion"), QCoreApplication::applicationVersion()}, {QStringLiteral("parentPid"), double(QCoreApplication::applicationPid())}, {QStringLiteral("installDirectory"), app}, {QStringLiteral("dataDirectory"), m_store.dataDirectory()}};
-    QSaveFile file(plan); const QByteArray bytes = QJsonDocument(object).toJson();
-    if (!file.open(QIODevice::WriteOnly) || file.write(bytes) != bytes.size() || !file.commit()) { setEnabled(true); showError(QStringLiteral("无法写入更新安装计划，资料备份已保留。")); return; }
+    const QByteArray bytes = QJsonDocument(object).toJson();
+    if (QFileInfo::exists(plan)) QFile::remove(plan);
+    if (!UpdateProtocol::writeCacheFile(plan, bytes, &error)) { setEnabled(true); showError(QStringLiteral("无法写入更新安装计划，资料备份已保留：") + error); return; }
     const QString powershell = QDir(qEnvironmentVariable("WINDIR", "C:/Windows")).filePath(QStringLiteral("System32/WindowsPowerShell/v1.0/powershell.exe"));
     if (!QProcess::startDetached(powershell, {QStringLiteral("-NoProfile"), QStringLiteral("-NonInteractive"), QStringLiteral("-WindowStyle"), QStringLiteral("Hidden"), QStringLiteral("-ExecutionPolicy"), QStringLiteral("Bypass"), QStringLiteral("-File"), helper, QStringLiteral("-Plan"), plan})) {
         setEnabled(true); showError(QStringLiteral("无法启动更新安装程序，当前程序未改变。")); return;

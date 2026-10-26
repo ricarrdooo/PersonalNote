@@ -18,6 +18,7 @@ bool parseRelease(const QByteArray &json, const QString &repository, UpdateRelea
 bool validateManifest(const QJsonObject &manifest, const QString &version, QString *error);
 bool allowedPath(const QString &path);
 bool allowedUrl(const QUrl &url);
+bool writeCacheFile(const QString &path, const QByteArray &bytes, QString *error = nullptr);
 }
 
 class AppUpdater : public QObject {

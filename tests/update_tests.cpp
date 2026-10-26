@@ -1,6 +1,8 @@
 #include <QtTest>
 #include <QJsonArray>
 #include <QJsonDocument>
+#include <QFile>
+#include <QTemporaryDir>
 #include "appupdater.h"
 
 class UpdateTests : public QObject {
@@ -13,6 +15,7 @@ private slots:
     void redirectsStayOnGithubHttps();
     void invalidConfigurationDoesNotStartWorker();
     void cancelledCheckReleasesBusyState();
+    void cacheWritesAreExclusiveAndComplete();
     void publicRepositoryNetworkProbe();
 };
 
@@ -68,6 +71,14 @@ void UpdateTests::cancelledCheckReleasesBusyState() {
     AppUpdater updater; QSignalSpy failed(&updater, &AppUpdater::failed);
     updater.check(QStringLiteral("ricarrdooo/PersonalNote")); updater.cancel();
     QTRY_VERIFY_WITH_TIMEOUT(failed.count() > 0, 30000); QVERIFY(!updater.busy());
+}
+void UpdateTests::cacheWritesAreExclusiveAndComplete() {
+    QTemporaryDir temporary; QVERIFY(temporary.isValid()); const QString path = temporary.filePath(QStringLiteral("manifest.json"));
+    const QByteArray bytes("manifest bytes\0end", 18); QString error;
+    QVERIFY2(UpdateProtocol::writeCacheFile(path, bytes, &error), qPrintable(error));
+    QFile file(path); QVERIFY(file.open(QIODevice::ReadOnly)); QCOMPARE(file.readAll(), bytes); file.close();
+    QVERIFY(!UpdateProtocol::writeCacheFile(path, QByteArray("overwrite"), &error));
+    QVERIFY(file.open(QIODevice::ReadOnly)); QCOMPARE(file.readAll(), bytes);
 }
 void UpdateTests::publicRepositoryNetworkProbe() {
     if (qEnvironmentVariable("SHIYE_LIVE_UPDATE_TEST") != QStringLiteral("1")) QSKIP("Set SHIYE_LIVE_UPDATE_TEST=1 to verify the Windows HTTPS connection.");
