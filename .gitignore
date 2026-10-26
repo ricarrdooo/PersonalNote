@@ -1,0 +1,9 @@
+prototype/.qa-browser/
+prototype/__pycache__/
+prototype/qa-failure.png
+build/
+dist/
+data/
+*.pro.user*
+*.autosave
+__pycache__/
